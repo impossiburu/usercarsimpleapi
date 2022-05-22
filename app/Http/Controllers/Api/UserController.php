@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\Car;
 use App\Models\User;
-use Facade\FlareClient\Http\Response;
 use Illuminate\Http\Request;
+use App\Http\Requests\UserRequest;
 use Illuminate\Http\Response as HttpResponse;
 
 class UserController extends Controller
@@ -28,15 +28,9 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(UserRequest $request)
     {
-        $this->validate($request, [
-            'name' => 'required|unique:users',
-            'email' => 'required|email',
-            'password' => 'required'
-        ]);
-
-        $user = User::create($request->all());
+        $user = User::create($request->validated());
         return new UserResource($user);
     }
 
@@ -74,9 +68,7 @@ class UserController extends Controller
                 $car->user_id = $user->id;
                 $car->update();
             } else {
-                return [
-                    'message' => 'Car' . $car->id . ' is used by user_id: ' . $car->user_id
-                ];
+                return response()->json(['message' => 'Car' . $car->id . ' is used by user_id: ' . $car->user_id]);
             }
         }
 
